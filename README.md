@@ -3,7 +3,7 @@
 Расширение для Google Chrome, позволяющее в один клик подключать HTTP/SOCKS прокси с поддержкой нескольких форматов ввода строки.
 
 ## Установка
-1. Скачайте архив расширения со страницы релиза: [FanProxy Release](https://github.com/AntigravityLogin/THproxy/releases/tag/Thproxy).
+1. Скачайте архив расширения со страницы релиза: [FanProxy Release](https://github.com/AntigravityLogin/FanProxy/releases/tag/v1.3).
 2. Распакуйте скачанный ZIP-архив в любую удобную папку.
 3. Откройте Google Chrome и перейдите по адресу `chrome://extensions/`
 4. Включите **"Режим разработчика"** (Developer mode) в правом верхнем углу.
