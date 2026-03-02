@@ -6,12 +6,118 @@ document.addEventListener('DOMContentLoaded', () => {
   const statusDot = document.getElementById('statusDot');
   const errorDiv = document.getElementById('error');
   const infoPanel = document.getElementById('info-panel');
+  const proxySelect = document.getElementById('proxySelect');
+  const proxyListWrap = document.getElementById('proxyListWrap');
+  const saveProxyBtn = document.getElementById('saveProxyBtn');
+  const deleteProxyBtn = document.getElementById('deleteProxyBtn');
 
-  // Загружаем сохранённые данные
-  chrome.storage.local.get(['proxyString', 'proxyActive'], (result) => {
-    if (result.proxyString) proxyInput.value = result.proxyString;
-    updateStatus(result.proxyActive);
-    showInfoPanel(); // показываем всегда — и с прокси, и без
+  // ── Загрузка списка прокси ────────────────────────────────────────────────
+  // Список хранится в chrome.storage.local под ключом 'savedProxies'.
+  // При первом запуске подгружаем proxy.txt и сохраняем в storage.
+  function loadProxyList(callback) {
+    chrome.storage.local.get(['savedProxies', 'proxyListLoaded'], (result) => {
+      if (result.proxyListLoaded) {
+        // Список уже загружен ранее — используем из storage
+        renderProxySelect(result.savedProxies || []);
+        if (callback) callback();
+      } else {
+        // Первый запуск — грузим proxy.txt из папки расширения
+        fetch(chrome.runtime.getURL('proxy.txt'))
+          .then(r => r.text())
+          .then(text => {
+            const lines = text.split('\n')
+              .map(l => l.trim())
+              .filter(l => l.length > 0);
+            chrome.storage.local.set({ savedProxies: lines, proxyListLoaded: true }, () => {
+              renderProxySelect(lines);
+              if (callback) callback();
+            });
+          })
+          .catch(() => {
+            // proxy.txt пустой или ошибка — пропускаем
+            chrome.storage.local.set({ savedProxies: [], proxyListLoaded: true }, () => {
+              renderProxySelect([]);
+              if (callback) callback();
+            });
+          });
+      }
+    });
+  }
+
+  function renderProxySelect(list) {
+    // Очищаем, оставляем первый placeholder option
+    proxySelect.innerHTML = '<option value="">— выберите прокси —</option>';
+    if (list && list.length > 0) {
+      list.forEach(proxy => {
+        const opt = document.createElement('option');
+        opt.value = proxy;
+        opt.textContent = proxy;
+        proxySelect.appendChild(opt);
+      });
+      proxyListWrap.style.display = 'block';
+    } else {
+      proxyListWrap.style.display = 'none';
+    }
+  }
+
+  // При выборе прокси из списка — подставляем в поле ввода
+  proxySelect.addEventListener('change', () => {
+    if (proxySelect.value) {
+      proxyInput.value = proxySelect.value;
+      errorDiv.style.display = 'none';
+    }
+  });
+
+  // ── Сохранение прокси в список ───────────────────────────────────────────
+  saveProxyBtn.addEventListener('click', () => {
+    const proxyStr = proxyInput.value.trim();
+    if (!proxyStr) {
+      showError('Введите строку прокси для сохранения');
+      return;
+    }
+    errorDiv.style.display = 'none';
+    chrome.storage.local.get(['savedProxies'], (result) => {
+      let list = result.savedProxies || [];
+      // Удаляем дубликат если уже есть
+      list = list.filter(p => p !== proxyStr);
+      // Добавляем в начало
+      list.unshift(proxyStr);
+      chrome.storage.local.set({ savedProxies: list, proxyListLoaded: true }, () => {
+        renderProxySelect(list);
+        // Показываем индикацию сохранения
+        const orig = saveProxyBtn.textContent;
+        saveProxyBtn.textContent = '✓ Сохранено';
+        saveProxyBtn.style.opacity = '0.7';
+        setTimeout(() => {
+          saveProxyBtn.textContent = orig;
+          saveProxyBtn.style.opacity = '';
+        }, 1500);
+      });
+    });
+  });
+
+  // ── Удаление прокси из списка ─────────────────────────────────────────────
+  deleteProxyBtn.addEventListener('click', () => {
+    const proxyStr = proxySelect.value;
+    if (!proxyStr) return; // ничего не выбрано
+    chrome.storage.local.get(['savedProxies'], (result) => {
+      const list = (result.savedProxies || []).filter(p => p !== proxyStr);
+      chrome.storage.local.set({ savedProxies: list }, () => {
+        renderProxySelect(list);
+        proxySelect.value = '';
+        // Если удалённый прокси был в поле ввода — очищаем
+        if (proxyInput.value.trim() === proxyStr) proxyInput.value = '';
+      });
+    });
+  });
+
+  // ── Загружаем сохранённые данные ─────────────────────────────────────────
+  loadProxyList(() => {
+    chrome.storage.local.get(['proxyString', 'proxyActive'], (result) => {
+      if (result.proxyString) proxyInput.value = result.proxyString;
+      updateStatus(result.proxyActive);
+      showInfoPanel(); // показываем всегда — и с прокси, и без
+    });
   });
 
   connectBtn.addEventListener('click', () => {

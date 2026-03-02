@@ -91,6 +91,120 @@
       border-color: rgba(108, 99, 255, 0.5);
     }
 
+    /* ── Proxy list select ── */
+    .proxy-list-wrap {
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    .proxy-list-wrap label {
+      display: block;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 5px;
+    }
+
+    #proxySelect {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 32px 9px 12px;
+      font-size: 12px;
+      font-family: 'Inter', monospace;
+      color: var(--text);
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7094' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+
+    #proxySelect:focus {
+      border-color: rgba(108, 99, 255, 0.5);
+    }
+
+    #proxySelect option {
+      background: #161925;
+      color: var(--text);
+    }
+
+    /* ── Select row (select + delete button) ── */
+    .select-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .select-row #proxySelect {
+      flex: 1 1 auto;
+      min-width: 0;
+      width: 0;
+    }
+
+    #deleteProxyBtn {
+      flex: 0 0 auto;
+      padding: 9px 10px;
+      background: rgba(248, 113, 113, 0.09);
+      color: var(--danger);
+      border: 1px solid rgba(248, 113, 113, 0.2);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      line-height: 1;
+    }
+
+    #deleteProxyBtn:hover {
+      background: rgba(248, 113, 113, 0.18);
+    }
+
+    #deleteProxyBtn:active {
+      transform: scale(0.97);
+    }
+
+    /* ── Save proxy button ── */
+    #saveProxyBtn {
+      flex: 0 0 auto;
+      padding: 9px 12px;
+      background: rgba(52, 211, 153, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(52, 211, 153, 0.2);
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    #saveProxyBtn:hover {
+      background: rgba(52, 211, 153, 0.18);
+    }
+
+    #saveProxyBtn:active {
+      transform: scale(0.97);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .input-row input[type="text"] {
+      margin-bottom: 0;
+      flex: 1;
+    }
+
     /* ── Buttons ── */
     .btn-row {
       display: flex;
@@ -330,7 +444,21 @@
     <h1>FanProxy</h1>
   </div>
 
-  <input type="text" id="proxyString" placeholder="ip:port  /  ip:port:user:pass  /  http://user:pass@ip:port">
+  <!-- Список прокси из proxy.txt (показывается если список не пуст) -->
+  <div class="proxy-list-wrap" id="proxyListWrap" style="display:none">
+    <label>📋 Выбрать из списка</label>
+    <div class="select-row">
+      <select id="proxySelect">
+        <option value="">— выберите прокси —</option>
+      </select>
+      <button id="deleteProxyBtn" title="Удалить выбранный прокси из списка">🗑</button>
+    </div>
+  </div>
+
+  <div class="input-row">
+    <input type="text" id="proxyString" placeholder="ip:port  /  ip:port:user:pass  /  http://user:pass@ip:port">
+    <button id="saveProxyBtn" title="Сохранить прокси в список">💾 Сохранить</button>
+  </div>
 
   <div class="btn-row">
     <button id="connectBtn">Подключить</button>

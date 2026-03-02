@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "FanProxy - Quick Proxy Manager",
-    "version": "1.3",
+    "version": "1.4",
     "description": "Устанавливает прокси из строки формата http://user:pass@ip:port",
     "permissions": [
         "proxy",
@@ -29,5 +29,15 @@
         },
         "default_popup": "popup.html",
         "default_title": "Настройка Прокси"
-    }
+    },
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "proxy.txt"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ]
 }
